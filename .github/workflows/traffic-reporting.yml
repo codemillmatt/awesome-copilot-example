@@ -1,0 +1,80 @@
+---
+name: Traffic Reporting
+
+'on':
+  # Run on-demand
+  workflow_dispatch:
+
+  # Uncomment to run on a schedule (daily at 00:00 UTC)
+  # schedule:
+  #   - cron: '0 0 * * *'
+
+jobs:
+  report-traffic:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch GitHub traffic statistics
+        id: traffic
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Fetch page views for the last 14 days
+          echo "Fetching traffic statistics for ${REPO}..."
+
+          # Get views data
+          VIEWS_DATA=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${REPO}/traffic/views)
+
+          echo "Views data retrieved successfully"
+          echo "$VIEWS_DATA" | jq '.'
+
+          # Save the data to a file for the next step
+          echo "$VIEWS_DATA" > /tmp/traffic_data.json
+
+      - name: Send traffic data to external API
+        env:
+          TRAFFIC_REPORT_URL: ${{ secrets.TRAFFIC_REPORT_URL }}
+        run: |
+          if [ -z "$TRAFFIC_REPORT_URL" ]; then
+            echo "::warning::TRAFFIC_REPORT_URL secret is not set."
+            echo "Skipping API call."
+            echo "Traffic data that would have been sent:"
+            cat /tmp/traffic_data.json | jq '.'
+            exit 0
+          fi
+
+          echo "Sending traffic data to ${TRAFFIC_REPORT_URL}..."
+
+          # Read the traffic data
+          TRAFFIC_DATA=$(cat /tmp/traffic_data.json)
+
+          # Send POST request to the external API
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Content-Type: application/json" \
+            -d "$TRAFFIC_DATA" \
+            "$TRAFFIC_REPORT_URL")
+
+          # Extract HTTP status code (last line)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP Status Code: ${HTTP_CODE}"
+          echo "Response: ${BODY}"
+
+          # Check if the request was successful
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✅ Traffic data sent successfully!"
+          else
+            echo "::error::Failed to send traffic data. HTTP ${HTTP_CODE}"
+            exit 1
+          fi
