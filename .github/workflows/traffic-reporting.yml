@@ -1,13 +1,8 @@
----
 name: Traffic Reporting
 
 on:
-  # Run on-demand
+  # Run on-demand only
   workflow_dispatch:
-
-  # Uncomment to run on a schedule (daily at 00:00 UTC)
-  # schedule:
-  #   - cron: '0 0 * * *'
 
 jobs:
   report-traffic:
@@ -15,7 +10,6 @@ jobs:
 
     permissions:
       contents: read
-      metadata: read
 
     steps:
       - name: Fetch GitHub traffic statistics
