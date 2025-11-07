@@ -1,7 +1,7 @@
 ---
 name: Traffic Reporting
 
-'on':
+on:
   # Run on-demand
   workflow_dispatch:
 
@@ -37,7 +37,7 @@ jobs:
           echo "$VIEWS_DATA" | jq '.'
 
           # Save the data to a file for the next step
-          echo "$VIEWS_DATA" > /tmp/traffic_data.json
+          echo "$VIEWS_DATA" > "$RUNNER_TEMP/traffic_data.json"
 
       - name: Send traffic data to external API
         env:
@@ -47,14 +47,14 @@ jobs:
             echo "::warning::TRAFFIC_REPORT_URL secret is not set."
             echo "Skipping API call."
             echo "Traffic data that would have been sent:"
-            cat /tmp/traffic_data.json | jq '.'
+            cat "$RUNNER_TEMP/traffic_data.json" | jq '.'
             exit 0
           fi
 
           echo "Sending traffic data to ${TRAFFIC_REPORT_URL}..."
 
           # Read the traffic data
-          TRAFFIC_DATA=$(cat /tmp/traffic_data.json)
+          TRAFFIC_DATA=$(cat "$RUNNER_TEMP/traffic_data.json")
 
           # Send POST request to the external API
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
