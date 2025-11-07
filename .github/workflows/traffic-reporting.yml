@@ -15,11 +15,9 @@ jobs:
 
     permissions:
       contents: read
+      metadata: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Fetch GitHub traffic statistics
         id: traffic
         env:
