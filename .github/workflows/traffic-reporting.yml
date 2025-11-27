@@ -15,7 +15,7 @@ jobs:
       - name: Fetch GitHub traffic statistics
         id: traffic
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.REPORTING_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
           # Fetch page views for the last 14 days
