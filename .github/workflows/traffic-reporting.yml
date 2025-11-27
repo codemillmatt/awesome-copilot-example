@@ -33,40 +33,10 @@ jobs:
           # Save the data to a file for the next step
           echo "$VIEWS_DATA" > "$RUNNER_TEMP/traffic_data.json"
 
-      - name: Send traffic data to external API
-        env:
-          TRAFFIC_REPORT_URL: ${{ secrets.TRAFFIC_REPORT_URL }}
+      - name: Output traffic data to console
         run: |
-          if [ -z "$TRAFFIC_REPORT_URL" ]; then
-            echo "::warning::TRAFFIC_REPORT_URL secret is not set."
-            echo "Skipping API call."
-            echo "Traffic data that would have been sent:"
-            cat "$RUNNER_TEMP/traffic_data.json" | jq '.'
-            exit 0
-          fi
-
-          echo "Sending traffic data to ${TRAFFIC_REPORT_URL}..."
-
-          # Read the traffic data
-          TRAFFIC_DATA=$(cat "$RUNNER_TEMP/traffic_data.json")
-
-          # Send POST request to the external API
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            -H "Content-Type: application/json" \
-            -d "$TRAFFIC_DATA" \
-            "$TRAFFIC_REPORT_URL")
-
-          # Extract HTTP status code (last line)
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | sed '$d')
-
-          echo "HTTP Status Code: ${HTTP_CODE}"
-          echo "Response: ${BODY}"
-
-          # Check if the request was successful
-          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-            echo "✅ Traffic data sent successfully!"
-          else
-            echo "::error::Failed to send traffic data. HTTP ${HTTP_CODE}"
-            exit 1
-          fi
+          echo "📊 Traffic data JSON (for debugging):"
+          echo "========================================"
+          cat "$RUNNER_TEMP/traffic_data.json" | jq '.'
+          echo "========================================"
+          echo "✅ Traffic data output complete!"
