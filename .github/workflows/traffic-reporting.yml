@@ -54,11 +54,14 @@ jobs:
             -H "Content-Type: application/json" \
             -H "X-API-KEY: ${API_KEY}" \
             --data-binary "@${RUNNER_TEMP}/traffic_data.json" \
-            "${REPORTING_URL}")
+            "${REPORTING_URL}" || echo "000")
           
           echo "HTTP Status Code: ${HTTP_STATUS}"
           
-          if [ "${HTTP_STATUS}" -ge 200 ] && [ "${HTTP_STATUS}" -lt 300 ]; then
+          if [ -z "${HTTP_STATUS}" ] || [ "${HTTP_STATUS}" = "000" ]; then
+            echo "❌ Error: Failed to connect to reporting endpoint"
+            exit 1
+          elif [ "${HTTP_STATUS}" -ge 200 ] && [ "${HTTP_STATUS}" -lt 300 ]; then
             echo "✅ Traffic data sent successfully!"
           else
             echo "❌ Error: Failed to send traffic data. Received HTTP status ${HTTP_STATUS}"
