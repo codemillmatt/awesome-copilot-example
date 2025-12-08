@@ -48,15 +48,12 @@ jobs:
         run: |
           echo "📤 Sending traffic data to reporting endpoint..."
           
-          # Read the traffic data
-          TRAFFIC_DATA=$(cat "$RUNNER_TEMP/traffic_data.json")
-          
-          # Send POST request with API key header
+          # Send POST request with API key header, reading file directly
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -X POST \
             -H "Content-Type: application/json" \
             -H "X-API-KEY: ${API_KEY}" \
-            -d "${TRAFFIC_DATA}" \
+            --data-binary "@${RUNNER_TEMP}/traffic_data.json" \
             "${REPORTING_URL}")
           
           echo "HTTP Status Code: ${HTTP_STATUS}"
@@ -64,6 +61,6 @@ jobs:
           if [ "${HTTP_STATUS}" -ge 200 ] && [ "${HTTP_STATUS}" -lt 300 ]; then
             echo "✅ Traffic data sent successfully!"
           else
-            echo "⚠️  Warning: Received HTTP status ${HTTP_STATUS}"
+            echo "❌ Error: Failed to send traffic data. Received HTTP status ${HTTP_STATUS}"
             exit 1
           fi
