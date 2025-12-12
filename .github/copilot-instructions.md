@@ -1,3 +1,8 @@
+---
+description: 'Next.js + Tailwind development standards and instructions'
+applyTo: '**/*.tsx, **/*.ts, **/*.jsx, **/*.js, **/*.css'
+---
+
 # Next.js + Tailwind Development Instructions
 
 Instructions for high-quality Next.js applications with Tailwind CSS styling and TypeScript.
