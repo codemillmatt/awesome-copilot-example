@@ -36,6 +36,8 @@ Explore how to build specialized chat experiences tailored to your specific work
 - Create a chat mode for planning, where the AI has read-only access to the codebase and can only generate implementation plans.
 - Define a research chat mode where the AI can reach out to external resources.
 - Create a DBA chat mode where the AI knows in-depth details about your database and DB-related concepts.
+- **[Agent Shadow Brain](https://github.com/theihtisham/agent-shadow-brain)** - Self-evolving AI coding intelligence with infinite memory (TurboQuant), genetic algorithm self-evolution, predictive bug detection, PageRank knowledge graphs, swarm intelligence, and adversarial defense.
+- **[Omni Skills Forge](https://github.com/theihtisham/omni-skills-forge)** - 50,000+ curated AI agent skills for Claude Code, Cursor, Copilot, Windsurf, Cline. Visual dashboard, one-click install, skill doctor, auto-update.
 
 ## A bit of a pre-req 🛠️
 
